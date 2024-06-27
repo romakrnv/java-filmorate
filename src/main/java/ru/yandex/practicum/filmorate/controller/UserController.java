@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,12 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
+
     private final Map<Long, User> users = new HashMap<>();
     private static final String regex = "^[\\w-]+@([\\w-]+\\.)+[\\w-]+$";
-
 
     @GetMapping
     public Collection<User> getUsers() {
@@ -32,19 +34,23 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         if (user.getLogin().contains(" ") || user.getLogin().isBlank()) {
+            log.warn("ValidationException " + user);
             throw new ValidationException("login cannot contains spaces or be empty");
         }
         user.setId(getNextId());
         users.put(user.getId(), user);
+        log.debug("new user created: " + user);
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
         if (user.getId() == null) {
+            log.warn("ValidationException " + user);
             throw new ValidationException("id should be specified");
         }
         if (!users.containsKey(user.getId())) {
+            log.info("NotFoundException " + user);
             throw new NotFoundException("user not found");
         }
 
@@ -60,6 +66,7 @@ public class UserController {
         if (user.getBirthday() != null && user.getBirthday().isBefore(LocalDate.now())) {
             oldUser.setBirthday(user.getBirthday());
         }
+        log.debug("user with id " + oldUser.getId() + " was updated to : " + oldUser);
         return oldUser;
     }
 

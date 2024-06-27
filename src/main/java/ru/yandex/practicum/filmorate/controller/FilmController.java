@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,8 +17,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/films")
 public class FilmController {
@@ -31,25 +32,31 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         if (film.getDescription().length() > 200) {
+            log.warn("ValidationException " + film);
             throw new ValidationException("Maximum description length is 200");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.warn("ValidationException " + film);
             throw new ValidationException("Film date must be after 28.12.1895");
         }
         if (film.getDuration().isZero() || film.getDuration().isNegative()) {
+            log.warn("ValidationException " + film);
             throw new ValidationException("Duration must be greater than zero");
         }
         film.setId(getNextId());
         films.put(film.getId(), film);
+        log.debug("new film created: " + film);
         return film;
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
         if (film.getId() == null) {
+            log.warn("ValidationException " + film);
             throw new ValidationException("id should be specified");
         }
         if (!films.containsKey(film.getId())) {
+            log.info("NotFoundException " + film);
             throw new NotFoundException("film not found");
         }
         Film oldFilm = films.get(film.getId());
@@ -60,6 +67,7 @@ public class FilmController {
         oldFilm.setDuration(Objects.requireNonNullElse(film.getDuration(), oldFilm.getDuration()));
         oldFilm.setReleaseDate(Objects.requireNonNullElse(film.getReleaseDate(), oldFilm.getReleaseDate()));
         oldFilm.setDescription(Objects.requireNonNullElse(film.getDescription(), oldFilm.getDescription()));
+        log.debug("film with id " + oldFilm.getId() + " changed to:" + oldFilm);
         return oldFilm;
     }
 
