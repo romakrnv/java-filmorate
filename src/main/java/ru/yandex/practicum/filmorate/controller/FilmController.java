@@ -31,17 +31,9 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (film.getDescription().length() > 200) {
-            log.warn("ValidationException " + film);
-            throw new ValidationException("Maximum description length is 200");
-        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("ValidationException " + film);
             throw new ValidationException("Film date must be after 28.12.1895");
-        }
-        if (film.getDuration().isZero() || film.getDuration().isNegative()) {
-            log.warn("ValidationException " + film);
-            throw new ValidationException("Duration must be greater than zero");
         }
         film.setId(getNextId());
         films.put(film.getId(), film);

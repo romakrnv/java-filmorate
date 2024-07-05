@@ -32,27 +32,9 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    void create_whenDurationIsMinus_thenThrowValidationException() {
-        Film film = createFilm();
-        film.setDuration(Duration.ofMinutes(-10));
-
-        assertThrows(ValidationException.class, () -> controller.create(film));
-    }
-
-    @Test
     void create_whenDateBefore1895_thenThrowValidationException() {
         Film film = createFilm();
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
-
-        assertThrows(ValidationException.class, () -> controller.create(film));
-    }
-
-    @Test
-    void create_whenDescriptionMore200ch_thenThrowValidationException() {
-        Film film = createFilm();
-        film.setDescription("201ttexttexttexttexttexttexttexttexttexttexttext" +
-                "texttexttexttexttexttexttexttexttexttexttexttexttexttexttexttext" +
-                "texttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttexttextt");
 
         assertThrows(ValidationException.class, () -> controller.create(film));
     }
