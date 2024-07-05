@@ -37,7 +37,7 @@ public class UserController {
             log.warn("ValidationException " + user);
             throw new ValidationException("login cannot contains spaces or be empty");
         }
-        if (user.getName().isBlank()) {
+        if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
