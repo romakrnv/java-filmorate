@@ -47,7 +47,7 @@ class FilmorateApplicationTests {
         newFilm.setId(oldFilm.getId());
         newFilm.setDescription("changed description");
         newFilm.setName("new Name");
-        newFilm.setDuration(Duration.ofMinutes(30));
+        newFilm.setDuration(Duration.ofMinutes(30).toMinutes());
         controller.update(newFilm);
 
         assertEquals(oldFilm, newFilm);
@@ -72,7 +72,7 @@ class FilmorateApplicationTests {
         Film film = new Film();
         film.setName("Film name");
         film.setDescription("Some text");
-        film.setDuration(Duration.ofMinutes(10));
+        film.setDuration(Duration.ofMinutes(10).toMinutes());
         film.setReleaseDate(LocalDate.of(2022, 11, 11));
         return film;
     }

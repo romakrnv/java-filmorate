@@ -56,7 +56,9 @@ public class FilmController {
         if (film.getName() != null && !film.getName().isBlank()) {
             oldFilm.setName(film.getName());
         }
-        oldFilm.setDuration(Objects.requireNonNullElse(film.getDuration(), oldFilm.getDuration()));
+        if(film.getDuration() != 0){
+            oldFilm.setDuration(film.getDuration());
+        }
         oldFilm.setReleaseDate(Objects.requireNonNullElse(film.getReleaseDate(), oldFilm.getReleaseDate()));
         oldFilm.setDescription(Objects.requireNonNullElse(film.getDescription(), oldFilm.getDescription()));
         log.debug("film with id " + oldFilm.getId() + " changed to:" + oldFilm);

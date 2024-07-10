@@ -8,13 +8,13 @@ import java.time.LocalDate;
 
 @lombok.Data
 public class User {
-    Long id;
+    private Long id;
     @Email
     @NotBlank
-    String email;
+    private String email;
     @NotBlank
-    String login;
-    String name;
+    private String login;
+    private String name;
     @Past
-    LocalDate birthday;
+    private LocalDate birthday;
 }
