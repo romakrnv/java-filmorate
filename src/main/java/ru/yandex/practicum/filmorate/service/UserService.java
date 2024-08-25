@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,16 +12,12 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class UserService {
     private final UserStorage storage;
     private static final String regex = "^[\\w-]+@([\\w-]+\\.)+[\\w-]+$";
-
-    @Autowired
-    public UserService(UserStorage storage) {
-        this.storage = storage;
-    }
 
     public Collection<User> getUsers() {
         return storage.getAllUsers();
@@ -48,12 +42,7 @@ public class UserService {
             log.warn("ValidationException " + user);
             throw new ValidationException("id should be specified");
         }
-        User oldUser = storage.getUser(user.getId());
-        if (oldUser == null) {
-            log.info("NotFoundException " + user);
-            throw new NotFoundException("user not found");
-        }
-
+        User oldUser = getUserOrThrow(user.getId());
         //update parameters for old user if not null
         if (user.getLogin() != null && !user.getLogin().isBlank() && !user.getLogin().contains(" ")) {
             oldUser.setLogin(user.getLogin());
@@ -69,39 +58,28 @@ public class UserService {
         return oldUser;
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addFriend(Long id, Long friendId) {
         if (id.equals(friendId)) {
             throw new ValidationException("The same ID were specified");
         }
-        User user = storage.getUser(id);
-        User userFriend = storage.getUser(friendId);
-        if (user == null || userFriend == null) {
-            throw new NotFoundException("User not found");
-        }
+        User user = getUserOrThrow(id);
+        User userFriend = getUserOrThrow(friendId);
         user.getFriends().add(userFriend.getId());
         userFriend.getFriends().add(user.getId());
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFriend(Long id, Long friendId) {
         if (id.equals(friendId)) {
             throw new ValidationException("The same ID were specified");
         }
-        User user = storage.getUser(id);
-        User userFriend = storage.getUser(friendId);
-        if (user == null || userFriend == null) {
-            throw new NotFoundException("User not found");
-        }
+        User user = getUserOrThrow(id);
+        User userFriend = getUserOrThrow(friendId);
         user.getFriends().remove(userFriend.getId());
         userFriend.getFriends().remove(user.getId());
     }
 
     public Collection<User> getFriends(Long id) {
-        User user = storage.getUser(id);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
+        User user = getUserOrThrow(id);
         return user.getFriends().stream()
                 .map(storage::getUser)
                 .toList();
@@ -111,11 +89,8 @@ public class UserService {
         if (userId.equals(otherId)) {
             throw new ValidationException("The same ID were specified");
         }
-        User user = storage.getUser(userId);
-        User anotherUser = storage.getUser(otherId);
-        if (user == null || anotherUser == null) {
-            throw new NotFoundException("User not found");
-        }
+        User user = getUserOrThrow(userId);
+        User anotherUser = getUserOrThrow(otherId);
         return user.getFriends().stream()
                 .filter(anotherUser.getFriends()::contains)
                 .map(storage::getUser)
@@ -124,5 +99,14 @@ public class UserService {
 
     public boolean isUserNotExist(Long id) {
         return storage.getUser(id) == null;
+    }
+
+    private User getUserOrThrow(Long id) {
+        User user = storage.getUser(id);
+        if (user == null) {
+            log.info("NotFoundException user with id: " + id);
+            throw new NotFoundException("user with id " + id + " not found");
+        }
+        return user;
     }
 }

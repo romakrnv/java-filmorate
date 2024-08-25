@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -14,17 +14,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class FilmService {
     private final FilmStorage storage;
     private final UserService userService;
-
-    @Autowired
-    public FilmService(FilmStorage storage, UserService userService) {
-        this.storage = storage;
-        this.userService = userService;
-    }
 
     public Collection<Film> getFilms() {
         return storage.getAllFilms();
@@ -45,11 +40,7 @@ public class FilmService {
             log.warn("ValidationException " + film);
             throw new ValidationException("id should be specified");
         }
-        Film oldFilm = storage.getFilm(film.getId());
-        if (oldFilm == null) {
-            log.info("NotFoundException " + film);
-            throw new NotFoundException("film not found");
-        }
+        Film oldFilm = getFilmOrThrow(film.getId());
         //update parameters for old film if not null
         if (film.getName() != null && !film.getName().isBlank()) {
             oldFilm.setName(film.getName());
@@ -65,9 +56,6 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         Film film = storage.getFilm(filmId);
-        if (film == null) {
-            throw new NotFoundException("Film with id " + filmId + " not found");
-        }
         if (userService.isUserNotExist(userId)) {
             throw new NotFoundException("User with id " + userId + " not found");
         }
@@ -75,10 +63,7 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId, Long userId) {
-        Film film = storage.getFilm(filmId);
-        if (film == null) {
-            throw new NotFoundException("Film with id " + filmId + " not found");
-        }
+        Film film = getFilmOrThrow(filmId);
         if (userService.isUserNotExist(userId)) {
             throw new NotFoundException("User with id " + userId + " not found");
         }
@@ -94,5 +79,14 @@ public class FilmService {
             count = films.size();
         }
         return films.subList(0, count);
+    }
+
+    private Film getFilmOrThrow(Long id) {
+        Film film = storage.getFilm(id);
+        if (film == null) {
+            log.info("NotFoundException film with id: " + id);
+            throw new NotFoundException("film with id " + id + " not found");
+        }
+        return film;
     }
 }
