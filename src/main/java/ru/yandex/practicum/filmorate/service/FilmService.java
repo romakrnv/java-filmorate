@@ -55,7 +55,7 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        Film film = storage.getFilm(filmId);
+        Film film = getFilmOrThrow(filmId);
         if (userService.isUserNotExist(userId)) {
             throw new NotFoundException("User with id " + userId + " not found");
         }
