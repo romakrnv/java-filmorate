@@ -8,12 +8,7 @@ CREATE TABLE "user" (
 
 CREATE TABLE "friends" (
   "user_id" integer,
-  "friend_id" integer
-);
-
-CREATE TABLE "friends_requests" (
-  "requester_id" integer,
-  "requested_friend_id" integer,
+  "friend_id" integer,
   "status" varchar
 );
 
@@ -44,10 +39,6 @@ CREATE TABLE "film_likes" (
 ALTER TABLE "friends" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
 ALTER TABLE "friends" ADD FOREIGN KEY ("friend_id") REFERENCES "user" ("id");
-
-ALTER TABLE "friends_requests" ADD FOREIGN KEY ("requester_id") REFERENCES "user" ("id");
-
-ALTER TABLE "friends_requests" ADD FOREIGN KEY ("requested_friend_id") REFERENCES "user" ("id");
 
 ALTER TABLE "film_genre" ADD FOREIGN KEY ("film_id") REFERENCES "film" ("id");
 
