@@ -19,10 +19,6 @@ Filmorate is a platform that integrates film exploration with social interaction
 ### Таблица friends
 - user_id (integer): Идентификатор пользователя, который отправил запрос на дружбу. Это внешний ключ, ссылающийся на user.id.
 - friend_id (integer): Идентификатор друга, с которым установлена связь. Это внешний ключ, ссылающийся на user.id.
-
-### Таблица friends_requests
-- requester_id (integer): Идентификатор пользователя, который отправил запрос на дружбу. Это внешний ключ, ссылающийся на user.id.
-- requested_friend_id (integer): Идентификатор пользователя, которому отправлен запрос на дружбу. Это внешний ключ, ссылающийся на user.id.
 - status (varchar): Статус запроса на дружбу (например, "ожидает", "принят", "отклонен").
 
 ### Таблица film
