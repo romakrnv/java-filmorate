@@ -32,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film newFilm) {
-        return null;
+        return storage.put(newFilm.getId(), newFilm);
     }
 
     @Override

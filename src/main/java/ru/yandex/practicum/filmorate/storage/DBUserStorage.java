@@ -74,6 +74,6 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public void removeFriend(Long id1, Long id2) {
-        int count = jdbcTemplate.update(REMOVE_FRIEND_QUERY, id1, id2);
+        jdbcTemplate.update(REMOVE_FRIEND_QUERY, id1, id2);
     }
 }

@@ -30,7 +30,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User newUser) {
-        return null;
+        return storage.put(newUser.getId(), newUser);
     }
 
     @Override
@@ -41,10 +41,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void removeFriend(Long id1, Long id2) {
 
-    }
-
-    public void removeUser(Long id) {
-        storage.remove(id);
     }
 
     private long getNextId() {
