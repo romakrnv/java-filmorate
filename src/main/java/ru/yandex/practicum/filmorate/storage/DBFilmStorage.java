@@ -67,6 +67,7 @@ public class DBFilmStorage implements FilmStorage {
         return film;
     }
 
+    @Override
     public Film update(Film newFilm) {
         getFilm(newFilm.getId()); /// убрать
         jdbcTemplate.update(UPDATE_FILM_QUERY,

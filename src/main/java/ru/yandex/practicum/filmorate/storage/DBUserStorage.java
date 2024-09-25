@@ -54,6 +54,7 @@ public class DBUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User update(User newUser) {
         int rowsAffected = jdbcTemplate.update(UPDATE_USER_QUERY,
                 newUser.getEmail(),
