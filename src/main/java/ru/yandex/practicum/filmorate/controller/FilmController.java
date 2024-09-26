@@ -30,10 +30,16 @@ public class FilmController {
     private final FilmService filmService;
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
+    @GetMapping()
     public Collection<Film> getFilms() {
         log.trace("starting getAllFilms");
         return filmService.getFilms();
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{id}")
+    public Film getFilmById(@PathVariable Long id) {
+        return filmService.getFilm(id);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -44,14 +50,14 @@ public class FilmController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
+    @PostMapping()
     public Film create(@Valid @RequestBody Film film) {
         log.trace("starting POST Create Film");
         return filmService.addFilm(film);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping
+    @PutMapping()
     public Film update(@RequestBody Film film) {
         log.trace("starting PUT Update Film: " + film);
         return filmService.updateFilm(film);

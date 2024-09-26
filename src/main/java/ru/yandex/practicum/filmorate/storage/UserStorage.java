@@ -9,7 +9,11 @@ public interface UserStorage {
 
     User getUser(Long id);
 
-    User addUser(User film);
+    User addUser(User user);
 
-    void removeUser(Long id);
+    User update(User newUser);
+
+    void addFriend(Long id1, Long id2);
+
+    void removeFriend(Long id1, Long id2);
 }

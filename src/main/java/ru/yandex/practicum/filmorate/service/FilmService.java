@@ -3,26 +3,28 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
 public class FilmService {
     private final FilmStorage storage;
-    private final UserService userService;
 
     public Collection<Film> getFilms() {
         return storage.getAllFilms();
+    }
+
+    public Film getFilm(Long id) {
+        return storage.getFilm(id);
     }
 
     public Film addFilm(Film film) {
@@ -30,63 +32,41 @@ public class FilmService {
             log.warn("ValidationException " + film);
             throw new ValidationException("Film date must be after 28.12.1895");
         }
-        storage.addFilm(film);
-        log.debug("new film created: " + film);
-        return film;
+        return storage.addFilm(film);
     }
 
     public Film updateFilm(Film film) {
-        if (film.getId() == null) {
-            log.warn("ValidationException " + film);
-            throw new ValidationException("id should be specified");
-        }
-        Film oldFilm = getFilmOrThrow(film.getId());
-        //update parameters for old film if not null
-        if (film.getName() != null && !film.getName().isBlank()) {
-            oldFilm.setName(film.getName());
-        }
-        if (film.getDuration() != null) {
-            oldFilm.setDuration(film.getDuration());
-        }
-        oldFilm.setReleaseDate(Objects.requireNonNullElse(film.getReleaseDate(), oldFilm.getReleaseDate()));
-        oldFilm.setDescription(Objects.requireNonNullElse(film.getDescription(), oldFilm.getDescription()));
-        log.debug("film with id " + oldFilm.getId() + " changed to:" + oldFilm);
-        return oldFilm;
+        return storage.update(film);
     }
 
     public void addLike(Long filmId, Long userId) {
-        Film film = getFilmOrThrow(filmId);
-        if (userService.isUserNotExist(userId)) {
-            throw new NotFoundException("User with id " + userId + " not found");
-        }
-        film.getLikes().add(userId);
+        storage.filmAddLike(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        Film film = getFilmOrThrow(filmId);
-        if (userService.isUserNotExist(userId)) {
-            throw new NotFoundException("User with id " + userId + " not found");
-        }
-        film.getLikes().remove(userId);
+        storage.filmRemoveLike(filmId, userId);
     }
 
     public List<Film> findFilmsByLikes(Integer count) {
-        List<Film> films = storage.getAllFilms().stream()
-                .sorted(Comparator.comparing(film -> film.getLikes().size()))
-                .toList()
-                .reversed();
-        if (count > films.size()) {
-            count = films.size();
-        }
-        return films.subList(0, count);
+        return storage.getAllFilms().stream()
+                .sorted((f1, f2) -> (f2.getLikes().size() - f1.getLikes().size()))
+                .limit(count)
+                .toList();
     }
 
-    private Film getFilmOrThrow(Long id) {
-        Film film = storage.getFilm(id);
-        if (film == null) {
-            log.info("NotFoundException film with id: " + id);
-            throw new NotFoundException("film with id " + id + " not found");
-        }
-        return film;
+    public Genre getGenre(Long id) {
+        return storage.findGenreById(id);
+    }
+
+    public Collection<Genre> getAllGenres() {
+        return storage.findAllGenres();
+    }
+
+    public Mpa getMpa(Long id) {
+        return storage.findMpaById(id);
+    }
+
+    public Collection<Mpa> getAllMpa() {
+        return storage.findAllMpa();
     }
 }
